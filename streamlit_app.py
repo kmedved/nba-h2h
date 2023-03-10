@@ -45,21 +45,21 @@ def main():
     winner, loser = st.columns(2)
 
     st.write("Who do you think is better?")
-    with winner:
-        if st.button(f"{player1}"):
-            # Update the Elo ratings based on the user's choice
-            winner_elo, loser_elo = calculate_elo_rating(player_rating_dict[player1], player_rating_dict[player2])
-            player_rating_dict[player1] = winner_elo
-            player_rating_dict[player2] = loser_elo
-            st.write(f"{player1} wins! New Elo ratings: {player1}: {winner_elo}, {player2}: {loser_elo}")
+    #with winner:
+    if st.button(f"{player1}"):
+        # Update the Elo ratings based on the user's choice
+        winner_elo, loser_elo = calculate_elo_rating(player_rating_dict[player1], player_rating_dict[player2])
+        player_rating_dict[player1] = winner_elo
+        player_rating_dict[player2] = loser_elo
+        st.write(f"{player1} wins! New Elo ratings: {player1}: {winner_elo}, {player2}: {loser_elo}")
 
-    with loser:
-        if st.button(f"{player2}"):
-            # Update the Elo ratings based on the user's choice
-            winner_elo, loser_elo = calculate_elo_rating(player_rating_dict[player2], player_rating_dict[player1])
-            player_rating_dict[player2] = winner_elo
-            player_rating_dict[player1] = loser_elo
-            st.write(f"{player2} wins! New Elo ratings: {player2}: {winner_elo}, {player1}: {loser_elo}")
+    #with loser:
+    if st.button(f"{player2}"):
+        # Update the Elo ratings based on the user's choice
+        winner_elo, loser_elo = calculate_elo_rating(player_rating_dict[player2], player_rating_dict[player1])
+        player_rating_dict[player2] = winner_elo
+        player_rating_dict[player1] = loser_elo
+        st.write(f"{player2} wins! New Elo ratings: {player2}: {winner_elo}, {player1}: {loser_elo}")
 
     df = pd.DataFrame.from_dict({'player_name': list(player_rating_dict.keys()), 'rating': list(player_rating_dict.values())})
 
