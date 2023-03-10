@@ -64,5 +64,8 @@ def main():
     # Display the updated Elo ratings
     st.write(df.sort_values(by='rating', ascending=False))
 
+    # Save the updated ratings to a CSV file
+    df.to_csv('ratings.csv')
+
 if __name__ == "__main__":
     main()
