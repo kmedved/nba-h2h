@@ -34,7 +34,7 @@ def main():
     players = df['player_name'].tolist()
 
     # Get two random players to compare
-    player1, player2 = random.sample(players)
+    player1, player2 = random.sample(players, 2)
 
     # Display the players and ask the user to choose the better player
     st.write(f"**Player 1:** {player1} (Elo Rating: {df.loc[player1]['elo']})")
