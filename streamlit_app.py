@@ -59,7 +59,7 @@ def main():
             player_rating_dict[player1] = loser_elo
             st.write(f"{player2} wins! New Elo ratings: {player2}: {winner_elo}, {player1}: {loser_elo}")
 
-    df = pd.DataFrame.from_dict(player_rating_dict, orient='index', columns=['rating'])
+    df = pd.DataFrame.from_dict({'player_name': list(player_rating_dict.keys()), 'rating': list(player_rating_dict.values())})
 
     # Display the updated Elo ratings
     st.write(df.sort_values(by='rating', ascending=False))
