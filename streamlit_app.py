@@ -18,7 +18,6 @@ def calculate_elo_rating(winner_elo, loser_elo):
     loser_elo = round(loser_elo + k_factor * (expected_win - actual_win))
     return winner_elo, loser_elo
 
-# Define the main function for the Streamlit app
 def main():
     st.title("Basketball Player Comparison App")
     st.write("Compare two random basketball players and update their Elo ratings!")
@@ -27,38 +26,43 @@ def main():
     if os.path.isfile('ratings.csv'):
         df = pd.read_csv('ratings.csv')
     else:
-        # If the file does not exist, initialize the DataFrame with the player dictionary
-        print('Cannot Find file')
+        st.write('Cannot find file')
+        return
 
     # Get the player names from the DataFrame
     players = df['player_name'].tolist()
 
-    # Get two random players to compare
+    # Create a session state to store the player ratings
+    session_state = st.session_state.get(player_rating_dict={})
+
+    # Select two random players to compare
     player1, player2 = random.sample(players, 2)
 
-    player_rating_dict = df.set_index('player_name')['rating'].to_dict()
+    # Get the Elo ratings of the players from the session state, or use the ratings from the DataFrame if not present
+    player_rating_dict = session_state['player_rating_dict']
+    if not player_rating_dict:
+        player_rating_dict = df.set_index('player_name')['rating'].to_dict()
+    player1_elo = player_rating_dict.get(player1, 1000)
+    player2_elo = player_rating_dict.get(player2, 1000)
 
     # Display the players and ask the user to choose the better player
-    st.write(f"**Player 1:** {player1} (Elo Rating: {player_rating_dict[player1]})")
-    st.write(f"**Player 2:** {player2} (Elo Rating: {player_rating_dict[player2]})")
+    st.write(f"**Player 1:** {player1} (Elo Rating: {player1_elo})")
+    st.write(f"**Player 2:** {player2} (Elo Rating: {player2_elo})")
 
-    winner, loser = st.columns(2)
-
-    st.write("Who do you think is better?")
-    #with winner:
+    # Display buttons for both players
     if st.button(f"{player1}"):
-        # Update the Elo ratings based on the user's choice
-        winner_elo, loser_elo = calculate_elo_rating(player_rating_dict[player1], player_rating_dict[player2])
+        winner_elo, loser_elo = calculate_elo_rating(player1_elo, player2_elo)
         player_rating_dict[player1] = winner_elo
         player_rating_dict[player2] = loser_elo
+        session_state['player_rating_dict'] = player_rating_dict
         st.write(f"{player1} wins! New Elo ratings: {player1}: {winner_elo}, {player2}: {loser_elo}")
-
-    #with loser:
+    st.write('')
+    
     if st.button(f"{player2}"):
-        # Update the Elo ratings based on the user's choice
-        winner_elo, loser_elo = calculate_elo_rating(player_rating_dict[player2], player_rating_dict[player1])
+        winner_elo, loser_elo = calculate_elo_rating(player2_elo, player1_elo)
         player_rating_dict[player2] = winner_elo
         player_rating_dict[player1] = loser_elo
+        session_state['player_rating_dict'] = player_rating_dict
         st.write(f"{player2} wins! New Elo ratings: {player2}: {winner_elo}, {player1}: {loser_elo}")
 
     df = pd.DataFrame.from_dict({'player_name': list(player_rating_dict.keys()), 'rating': list(player_rating_dict.values())})
