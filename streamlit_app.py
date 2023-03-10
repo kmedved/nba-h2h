@@ -33,7 +33,9 @@ def main():
     players = df['player_name'].tolist()
 
     # Create a session state to store the player ratings
-    session_state = st.session_state.get(player_rating_dict={})
+    player_rating_dict = df.set_index('player_name')['rating'].to_dict()
+
+    session_state = st.session_state.get(player_rating_dict)
 
     # Select two random players to compare
     player1, player2 = random.sample(players, 2)
@@ -57,7 +59,7 @@ def main():
         session_state['player_rating_dict'] = player_rating_dict
         st.write(f"{player1} wins! New Elo ratings: {player1}: {winner_elo}, {player2}: {loser_elo}")
     st.write('')
-    
+
     if st.button(f"{player2}"):
         winner_elo, loser_elo = calculate_elo_rating(player2_elo, player1_elo)
         player_rating_dict[player2] = winner_elo
