@@ -36,33 +36,33 @@ def main():
     # Get two random players to compare
     player1, player2 = random.sample(players, 2)
 
+    player_rating_dict = df.set_index('player_name')['rating'].to_dict()
+
     # Display the players and ask the user to choose the better player
-    st.write(f"**Player 1:** {player1} (Elo Rating: {df.loc[player1]['elo']})")
-    st.write(f"**Player 2:** {player2} (Elo Rating: {df.loc[player2]['elo']})")
+    st.write(f"**Player 1:** {player1} (Elo Rating: {player_rating_dict[player1]})")
+    st.write(f"**Player 2:** {player2} (Elo Rating: {player_rating_dict[player2]})")
 
     winner, loser = st.columns(2)
     with winner:
         if st.button(f"{player1}"):
             # Update the Elo ratings based on the user's choice
-            winner_elo, loser_elo = calculate_elo_rating(df.loc[player1]['elo'], df.loc[player2]['elo'])
-            df.loc[player1]['elo'] = winner_elo
-            df.loc[player2]['elo'] = loser_elo
+            winner_elo, loser_elo = calculate_elo_rating(player_rating_dict[player1], player_rating_dict[player2])
+            player_rating_dict[player1] = winner_elo
+            player_rating_dict[player2] = loser_elo
             st.write(f"{player1} wins! New Elo ratings: {player1}: {winner_elo}, {player2}: {loser_elo}")
 
     with loser:
         if st.button(f"{player2}"):
             # Update the Elo ratings based on the user's choice
-            winner_elo, loser_elo = calculate_elo_rating(df.loc[player2]['elo'], df.loc[player1]['elo'])
-            df.loc[player2]['elo'] = winner_elo
-            df.loc[player1]['elo'] = loser_elo
+            winner_elo, loser_elo = calculate_elo_rating(player_rating_dict[player2], player_rating_dict[player1])
+            player_rating_dict[player2] = winner_elo
+            player_rating_dict[player1] = loser_elo
             st.write(f"{player2} wins! New Elo ratings: {player2}: {winner_elo}, {player1}: {loser_elo}")
 
+    df = pd.DataFrame.from_dict(player_rating_dict, orient='index', columns=['rating'])
+
     # Display the updated Elo ratings
-    st.write(df.sort_values(by='elo', ascending=False))
-
-    # Save the ratings to a CSV file
-    df.to_csv('ratings.csv')
-
+    st.write(df.sort_values(by='rating', ascending=False))
 
 if __name__ == "__main__":
     main()
