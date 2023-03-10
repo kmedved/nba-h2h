@@ -25,7 +25,7 @@ def main():
 
     # Load the ratings from a CSV file (if it exists)
     if os.path.isfile('ratings.csv'):
-        df = pd.read_csv('ratings.csv', index_col=0)
+        df = pd.read_csv('ratings.csv')
     else:
         # If the file does not exist, initialize the DataFrame with the player dictionary
         print('Cannot Find file')
