@@ -31,10 +31,10 @@ def main():
         print('Cannot Find file')
 
     # Get the player names from the DataFrame
-    players = df.to_dict()['elo']
+    players = df['player_name'].tolist()
 
     # Get two random players to compare
-    player1, player2 = random.sample(list(players.keys()), 2)
+    player1, player2 = random.sample(players)
 
     # Display the players and ask the user to choose the better player
     st.write(f"**Player 1:** {player1} (Elo Rating: {df.loc[player1]['elo']})")
