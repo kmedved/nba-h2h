@@ -122,6 +122,7 @@ venv.bak/
 
 # Streamlit
 streamlit/secrets.toml
+test.ipynb
 
 # Spyder project settings
 .spyderproject

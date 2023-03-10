@@ -3,6 +3,9 @@ import pandas as pd
 import random
 import os
 
+import pandas as pd
+import s3fs
+
 # Create a dictionary of basketball players with their Elo ratings
 # You can replace these with your own data or use an external API
 
@@ -18,16 +21,32 @@ def calculate_elo_rating(winner_elo, loser_elo):
     loser_elo = round(loser_elo + k_factor * (expected_win - actual_win))
     return winner_elo, loser_elo
 
+def read_ratings():
+
+    fs = s3fs.S3FileSystem(anon=False)
+
+    # Retrieve file contents using pandas.
+    @st.cache(ttl=600, allow_output_mutation=True)
+    def read_file(filename):
+        with fs.open(filename) as f:
+            return pd.read_csv(f)
+        
+    #df = read_file("darko-streamlit/ratings.csv")
+
+    # Get the file contents outside the `@st.cache` function.
+    # This avoids the use of `S3FileSystem` inside the function.
+    filename = filename = "darko-streamlit/ratings.csv"
+    df = read_file(filename)
+
+    return df
+
 # Define the main function for the Streamlit app
 def main():
     st.title("Basketball Player Comparison App")
     st.write("Compare two random basketball players and update their Elo ratings!")
 
     # Load the ratings from a CSV file (if it exists)
-
-    ratings_url = 'https://www.dropbox.com/s/7lwtujmxn3yl83c/ratings.csv?dl=1'
-
-    df = pd.read_csv(ratings_url)
+    df = read_ratings()
 
     # Get the player names from the DataFrame
     players = df['player_name'].tolist()
