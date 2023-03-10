@@ -1,25 +1,13 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
+
+import pandas as pd
 import random
 import os
 
 import pandas as pd
 import s3fs
-
-# Create a dictionary of basketball players with their Elo ratings
-# You can replace these with your own data or use an external API
-
-# Create a DataFrame to store the Elo ratings and initialize it with the player dictionary
-#df = pd.DataFrame.from_dict(players, orient='index', columns=['elo'])
-
-# Define the Elo rating calculation function
-def calculate_elo_rating(winner_elo, loser_elo):
-    k_factor = 32
-    expected_win = 1 / (1 + 10**((loser_elo - winner_elo) / 400))
-    actual_win = 1
-    winner_elo = round(winner_elo + k_factor * (actual_win - expected_win))
-    loser_elo = round(loser_elo + k_factor * (expected_win - actual_win))
-    return winner_elo, loser_elo
 
 def read_ratings():
 
@@ -40,59 +28,45 @@ def read_ratings():
 
     return df
 
-# Define the main function for the Streamlit app
-def main():
-    st.title("Basketball Player Comparison App")
-    st.write("Compare two random basketball players and update their Elo ratings!")
+nba_df = read_ratings()
 
-    # Load the ratings from a CSV file (if it exists)
-    df = read_ratings()
+# Define the Elo rating system function
+def elo_rating(rating1, rating2, result, k=32):
+    expected_score1 = 1 / (1 + 10**((rating2 - rating1) / 400))
+    expected_score2 = 1 - expected_score1
+    new_rating1 = rating1 + k * (result - expected_score1)
+    new_rating2 = rating2 + k * ((1 - result) - expected_score2)
+    return new_rating1, new_rating2
 
-    # Get the player names from the DataFrame
-    players = df['player_name'].tolist()
+# Define the function to pick two random players
+def pick_random_players(nba_df):
+    player1, player2 = np.random.choice(nba_df["player_name"], size=2, replace=False)
+    rating1 = nba_df.loc[nba_df["player_name"] == player1, "rating"].values[0]
+    rating2 = nba_df.loc[nba_df["player_name"] == player2, "rating"].values[0]
+    return player1, player2, rating1, rating2
 
-    # Get two random players to compare
-    player1, player2 = random.sample(players, 2)
+# Set up the Streamlit app
+st.title("NBA Player Ratings")
 
-    player_rating_dict = df.set_index('player_name')['rating'].to_dict()
+# Initialize the player ratings dictionary
+player_ratings = {player: 1500 for player in nba_df["player_name"]}
 
-    # Display the players and ask the user to choose the better player
-    st.write(f"**Player 1:** {player1} (Elo Rating: {player_rating_dict[player1]})")
-    st.write(f"**Player 2:** {player2} (Elo Rating: {player_rating_dict[player2]})")
+# Set up the initial display
+player1, player2, rating1, rating2 = pick_random_players(nba_df)
+st.write(f"Which player is better? {player1} or {player2}?")
+choice = st.radio("", (player1, player2))
 
-    winner, loser = st.columns(2)
+# Update the player ratings based on the user's choice
+if choice == player1:
+    result = 1
+else:
+    result = 0
+new_rating1, new_rating2 = elo_rating(rating1, rating2, result)
+player_ratings[player1] = new_rating1
+player_ratings[player2] = new_rating2
 
-    st.write("Who do you think is better?")
-    #with winner:
-    if st.button(f"{player1}"):
-        # Update the Elo ratings based on the user's choice
-        winner_elo, loser_elo = calculate_elo_rating(player_rating_dict[player1], player_rating_dict[player2])
-        player_rating_dict[player1] = winner_elo
-        player_rating_dict[player2] = loser_elo
-        st.write(f"{player1} wins! New Elo ratings: {player1}: {winner_elo}, {player2}: {loser_elo}")
-
-    #with loser:
-    if st.button(f"{player2}"):
-        # Update the Elo ratings based on the user's choice
-        winner_elo, loser_elo = calculate_elo_rating(player_rating_dict[player2], player_rating_dict[player1])
-        player_rating_dict[player2] = winner_elo
-        player_rating_dict[player1] = loser_elo
-        st.write(f"{player2} wins! New Elo ratings: {player2}: {winner_elo}, {player1}: {loser_elo}")
-
-    df = pd.DataFrame.from_dict({'player_name': list(player_rating_dict.keys()), 'rating': list(player_rating_dict.values())})
-
-    # Display the updated Elo ratings
-    st.write(df.sort_values(by='rating', ascending=False))
-
-    # Write the DataFrame to S3 using pd.to_csv() and s3fs.
-
-    fs = s3fs.S3FileSystem(anon=False)
-    s3_path = "darko-streamlit/ratings.csv"
-    with fs.open(s3_path, "w") as f:
-        df.to_csv(f, index=False)
-
-    import sys
-    sys.exit(0)
-
-if __name__ == "__main__":
-    main()
+# Display the updated ratings
+st.write("Updated Ratings:")
+nba_df["rating"] = nba_df["player_name"].apply(lambda x: player_ratings[x])
+nba_df = nba_df.sort_values(by=["rating"], ascending=False)
+st.write(nba_df)
