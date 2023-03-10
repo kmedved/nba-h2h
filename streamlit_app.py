@@ -4,21 +4,9 @@ import random
 
 # Create a dictionary of basketball players with their Elo ratings
 # You can replace these with your own data or use an external API
-players = {
-    "LeBron James": 2000,
-    "Kobe Bryant": 1900,
-    "Michael Jordan": 2100,
-    "Magic Johnson": 1800,
-    "Larry Bird": 1700,
-    "Shaquille O'Neal": 1600,
-    "Tim Duncan": 1700,
-    "Kevin Durant": 1900,
-    "Stephen Curry": 2000,
-    "Kareem Abdul-Jabbar": 2200
-}
 
 # Create a DataFrame to store the Elo ratings and initialize it with the player dictionary
-df = pd.DataFrame.from_dict(players, orient='index', columns=['elo'])
+#df = pd.DataFrame.from_dict(players, orient='index', columns=['elo'])
 
 # Define the Elo rating calculation function
 def calculate_elo_rating(winner_elo, loser_elo):
