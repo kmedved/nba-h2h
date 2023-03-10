@@ -31,7 +31,7 @@ def main():
         print('Cannot Find file')
 
     # Get the player names from the DataFrame
-    players = df.to_dict()['player_name']
+    players = df.to_dict()['elo']
 
     # Get two random players to compare
     player1, player2 = random.sample(list(players.keys()), 2)
