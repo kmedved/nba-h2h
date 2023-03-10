@@ -69,5 +69,8 @@ def main():
     # Save the updated ratings to a CSV file
     df.to_csv('ratings.csv')
 
+    import sys
+    sys.exit(0)
+
 if __name__ == "__main__":
     main()
