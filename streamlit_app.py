@@ -49,7 +49,8 @@ def pick_random_players(nba_df):
 st.title("NBA Player Ratings")
 
 # Initialize the player ratings dictionary
-player_ratings = {player: 1500 for player in nba_df["player_name"]}
+#player_ratings = {player: 1500 for player in nba_df["player_name"]}
+player_ratings = nba_df.set_index('player_name')['rating'].to_dict()
 
 # Set up the initial display
 player1, player2, rating1, rating2 = pick_random_players(nba_df)
