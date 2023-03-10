@@ -11,7 +11,6 @@ import os
 
 # Define the Elo rating calculation function
 def calculate_elo_rating(winner_elo, loser_elo):
-    st.write(f"**Player 2:** {winner_elo, loser_elo})")
     k_factor = 32
     expected_win = 1 / (1 + 10**((loser_elo - winner_elo) / 400))
     actual_win = 1
@@ -44,6 +43,8 @@ def main():
     st.write(f"**Player 2:** {player2} (Elo Rating: {player_rating_dict[player2]})")
 
     winner, loser = st.columns(2)
+
+    st.write("Who do you think is better?")
     with winner:
         if st.button(f"{player1}"):
             # Update the Elo ratings based on the user's choice
