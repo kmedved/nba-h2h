@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import random
+import os
 
 # Create a dictionary of basketball players with their Elo ratings
 # You can replace these with your own data or use an external API
@@ -28,6 +29,9 @@ def main():
     else:
         # If the file does not exist, initialize the DataFrame with the player dictionary
         print('Cannot Find file')
+
+    # Get the player names from the DataFrame
+    players = df.to_dict()['player_name']
 
     # Get two random players to compare
     player1, player2 = random.sample(list(players.keys()), 2)
