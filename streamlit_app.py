@@ -11,6 +11,7 @@ import os
 
 # Define the Elo rating calculation function
 def calculate_elo_rating(winner_elo, loser_elo):
+    st.write(f"**Player 2:** {winner_elo, loser_elo})")
     k_factor = 32
     expected_win = 1 / (1 + 10**((loser_elo - winner_elo) / 400))
     actual_win = 1
