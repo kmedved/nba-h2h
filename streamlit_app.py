@@ -35,8 +35,8 @@ def read_ratings():
 
     # Get the file contents outside the `@st.cache` function.
     # This avoids the use of `S3FileSystem` inside the function.
-    filename = filename = "darko-streamlit/ratings.csv"
-    df = read_file(filename)
+    s3_path = "darko-streamlit/ratings.csv"
+    df = read_file(s3_path)
 
     return df
 
@@ -84,8 +84,12 @@ def main():
     # Display the updated Elo ratings
     st.write(df.sort_values(by='rating', ascending=False))
 
-    # Save the updated ratings to a CSV file
-    df.to_csv(ratings_url)
+    # Write the DataFrame to S3 using pd.to_csv() and s3fs.
+
+    fs = s3fs.S3FileSystem(anon=False)
+    s3_path = "darko-streamlit/ratings.csv"
+    with fs.open(s3_path, "w") as f:
+        df.to_csv(f, index=False)
 
     import sys
     sys.exit(0)
