@@ -22,6 +22,13 @@ def main():
     st.title("Basketball Player Comparison App")
     st.write("Compare two random basketball players and update their Elo ratings!")
 
+    # Load the ratings from a CSV file (if it exists)
+    if os.path.isfile('ratings.csv'):
+        df = pd.read_csv('ratings.csv', index_col=0)
+    else:
+        # If the file does not exist, initialize the DataFrame with the player dictionary
+        print('Cannot Find file')
+
     # Get two random players to compare
     player1, player2 = random.sample(list(players.keys()), 2)
 
@@ -48,6 +55,9 @@ def main():
 
     # Display the updated Elo ratings
     st.write(df.sort_values(by='elo', ascending=False))
+
+    # Save the ratings to a CSV file
+    df.to_csv('ratings.csv')
 
 
 if __name__ == "__main__":
