@@ -70,3 +70,10 @@ st.write("Updated Ratings:")
 nba_df["rating"] = nba_df["player_name"].apply(lambda x: player_ratings[x])
 nba_df = nba_df.sort_values(by=["rating"], ascending=False)
 st.write(nba_df)
+
+# Write the DataFrame to S3 using pd.to_csv() and s3fs.
+
+fs = s3fs.S3FileSystem(anon=False)
+s3_path = "darko-streamlit/ratings.csv"
+with fs.open(s3_path, "w") as f:
+    nba_df.to_csv(f, index=False)
