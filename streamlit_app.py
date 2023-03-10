@@ -24,11 +24,10 @@ def main():
     st.write("Compare two random basketball players and update their Elo ratings!")
 
     # Load the ratings from a CSV file (if it exists)
-    if os.path.isfile('ratings.csv'):
-        df = pd.read_csv('ratings.csv')
-    else:
-        # If the file does not exist, initialize the DataFrame with the player dictionary
-        print('Cannot Find file')
+
+    ratings_url = 'https://www.dropbox.com/s/7lwtujmxn3yl83c/ratings.csv?dl=1'
+
+    df = pd.read_csv(ratings_url)
 
     # Get the player names from the DataFrame
     players = df['player_name'].tolist()
@@ -67,7 +66,7 @@ def main():
     st.write(df.sort_values(by='rating', ascending=False))
 
     # Save the updated ratings to a CSV file
-    df.to_csv('ratings.csv')
+    df.to_csv(ratings_url)
 
     import sys
     sys.exit(0)
