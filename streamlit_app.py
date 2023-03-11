@@ -65,7 +65,7 @@ player1, player2, rating1, rating2 = pick_random_players(nba_df)
 
 # Define the player comparison function
 st.write(f"Who is better: {player1} or {player2}?")
-selected_player = st.selectbox("Select a player", [player1, player2])
+selected_player = st.radio("Select a player", [player1, player2])
 st.button("Submit")
 if selected_player == player1:
     result = 0
