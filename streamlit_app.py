@@ -7,29 +7,8 @@ import random
 import os
 
 import pandas as pd
-import s3fs
 
 import dropbox
-import csv
-
-def read_ratings_dep():
-
-    fs = s3fs.S3FileSystem(anon=False)
-
-    # Retrieve file contents using pandas.
-    @st.cache(ttl=600, allow_output_mutation=True)
-    def read_file(filename):
-        with fs.open(filename) as f:
-            return pd.read_csv(f)
-        
-    #df = read_file("darko-streamlit/ratings.csv")
-
-    # Get the file contents outside the `@st.cache` function.
-    # This avoids the use of `S3FileSystem` inside the function.
-    s3_path = "darko-streamlit/ratings.csv"
-    df = read_file(s3_path)
-
-    return df
 
 def read_ratings():
 
@@ -85,7 +64,12 @@ player_ratings = nba_df.set_index('player_name')['rating'].to_dict()
 # Set up the initial display
 player1, player2, rating1, rating2 = pick_random_players(nba_df)
 st.write(f"Which player is better? {player1} or {player2}?")
-choice = st.selectbox("", (player1, player2))
+#choice = st.selectbox("", (player1, player2))
+
+if st.button(player1):
+    choice = player1
+else:
+    choice = player2
 
 # Update the player ratings based on the user's choice
 if choice == player1:
@@ -101,10 +85,5 @@ st.write("Updated Ratings:")
 nba_df["rating"] = nba_df["player_name"].apply(lambda x: player_ratings[x])
 nba_df = nba_df.sort_values(by=["rating"], ascending=False)
 st.write(nba_df)
-
-# Write the DataFrame to S3 using pd.to_csv() and s3fs.
-
-#fs = s3fs.S3FileSystem(anon=False)
-#s3_path = "darko-streamlit/ratings.csv"
 
 write_ratings(nba_df)
