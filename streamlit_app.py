@@ -67,6 +67,9 @@ if st.button(player1):
     choice = player1
 if st.button(player2):
     choice = player2
+else:
+    choice = None
+    print("no choice")
 
 # Update the player ratings based on the user's choice
 if choice == player1:
