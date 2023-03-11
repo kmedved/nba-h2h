@@ -63,7 +63,7 @@ player_ratings = nba_df.set_index('player_name')['rating'].to_dict()
 # Set up the initial display
 player1, player2, rating1, rating2 = pick_random_players(nba_df)
 st.write(f"Which player is better? {player1} or {player2}?")
-choice = st.button("Select a player", (player1, player2))
+choice = st.radio("Select a player", (player1, player2), index=None)
 
 # Update the player ratings based on the user's choice
 if choice == player1:
