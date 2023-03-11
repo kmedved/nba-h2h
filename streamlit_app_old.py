@@ -94,5 +94,28 @@ def main():
     import sys
     sys.exit(0)
 
+# Write the DataFrame to S3 using pd.to_csv() and s3fs.
+
+#fs = s3fs.S3FileSystem(anon=False)
+#s3_path = "darko-streamlit/ratings.csv"
+def read_ratings_dep():
+
+    fs = s3fs.S3FileSystem(anon=False)
+
+    # Retrieve file contents using pandas.
+    @st.cache(ttl=600, allow_output_mutation=True)
+    def read_file(filename):
+        with fs.open(filename) as f:
+            return pd.read_csv(f)
+        
+    #df = read_file("darko-streamlit/ratings.csv")
+
+    # Get the file contents outside the `@st.cache` function.
+    # This avoids the use of `S3FileSystem` inside the function.
+    s3_path = "darko-streamlit/ratings.csv"
+    df = read_file(s3_path)
+
+    return df
+
 if __name__ == "__main__":
     main()
