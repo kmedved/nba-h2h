@@ -1,13 +1,11 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+from st_btn_select import st_btn_select
 
 import pandas as pd
-import random
-import os
-
-import pandas as pd
-
+#import random
+#import os
 import dropbox
 
 def read_ratings():
@@ -37,12 +35,12 @@ def write_ratings(df):
     return
 
 # Define the Elo rating system function
-def elo_rating(rating1, rating2, result, k=32):
+def elo_rating(rating2, rating1, result, k=32):
     expected_score1 = 1 / (1 + 10**((rating2 - rating1) / 400))
     expected_score2 = 1 - expected_score1
     new_rating1 = rating1 + k * (result - expected_score1)
     new_rating2 = rating2 + k * ((1 - result) - expected_score2)
-    return new_rating1, new_rating2
+    return new_rating2, new_rating1
 
 # Define the function to pick two random players
 def pick_random_players(nba_df):
@@ -51,21 +49,19 @@ def pick_random_players(nba_df):
     rating2 = nba_df.loc[nba_df["player_name"] == player2, "rating"].values[0]
     return player1, player2, rating1, rating2
 
-def run_comparison(player1, player2):
-    st.write(f"Who is better: {player1} or {player2}?")
 
-    if st.button(player1):
-        st.write(f"{player1} wins!")
-        result = 0
+def read_ratings_test():
+    df = pd.DataFrame(
+        {
+            "player_name": ["LeBron James", "Kevin Durant", "Stephen Curry"],
+            "rating": [1500, 1500, 1500],
+        }
+    )
+    return df
 
-    if st.button(player2):
-        st.write(f"{player2} wins!")
-        result = 1
-
-    return result
 
 # Read in the ratings
-nba_df = read_ratings()
+nba_df = read_ratings_test()
 
 # Set up the Streamlit app
 st.title("NBA Player Ratings")
@@ -73,20 +69,32 @@ st.title("NBA Player Ratings")
 # Initialize the player ratings dictionary
 player_ratings = nba_df.set_index('player_name')['rating'].to_dict()
 
+
 # Set up the initial display
 player1, player2, rating1, rating2 = pick_random_players(nba_df)
 
-result = run_comparison(player1, player2)
 
-new_rating1, new_rating2 = elo_rating(rating1, rating2, result)
-player_ratings[player1] = new_rating1
-player_ratings[player2] = new_rating2
+selection = st_btn_select((player1, player2))
 
-# Display the updated ratings
-st.write("Updated Ratings:")
-nba_df["rating"] = nba_df["player_name"].apply(lambda x: player_ratings[x])
-nba_df = nba_df.sort_values(by=["rating"], ascending=False)
-st.write(nba_df)
+if len(selection)>0:
+    if selection == player1:
+        st.write(f"{player1} wins!")
+        result = 0
+    else:
+        st.write(f"{player2} wins!")
+        result = 1
 
-# Write the updated ratings to Dropbox
-write_ratings(nba_df)
+    
+
+    new_rating1, new_rating2 = elo_rating(rating1, rating2, result)
+    player_ratings[player1] = new_rating1
+    player_ratings[player2] = new_rating2
+
+    # Display the updated ratings
+    st.write("Updated Ratings:")
+    nba_df["rating"] = nba_df["player_name"].apply(lambda x: player_ratings[x])
+    nba_df = nba_df.sort_values(by=["rating"], ascending=False)
+    st.write(nba_df)
+
+    # Write the updated ratings to Dropbox
+    #write_ratings(nba_df)
