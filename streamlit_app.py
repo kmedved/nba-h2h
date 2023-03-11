@@ -66,6 +66,7 @@ player1, player2, rating1, rating2 = pick_random_players(nba_df)
 # Define the player comparison function
 def compare_players(player1, player2, player_ratings):
     st.write(f"Who is better: {player1} or {player2}?")
+    result = 1
     if st.button(player1):
         result = 0
         st.success(f"{player1} wins!")
