@@ -9,7 +9,16 @@ import os
 import pandas as pd
 import s3fs
 
-def read_ratings():
+import dropbox
+import csv
+
+# Replace YOUR_API_TOKEN with your actual Dropbox API token
+
+api_token = secrets['DROPBOX_API_TOKEN']
+
+dbx = dropbox.Dropbox(api_token)
+
+def read_ratings_dep():
 
     fs = s3fs.S3FileSystem(anon=False)
 
@@ -27,6 +36,33 @@ def read_ratings():
     df = read_file(s3_path)
 
     return df
+
+def read_ratings():
+
+    api_token = st.secrets["DROPBOX_API_TOKEN"]
+    dbx = dropbox.Dropbox(api_token)
+
+    # Define the path to the CSV file on Dropbox
+    csv_file_path = '/nba_elo/ratings.csv'
+
+    # Read CSV file from Dropbox into a pandas dataframe
+    _, res = dbx.files_download(csv_file_path)
+    df = pd.read_csv(res.raw)
+
+    return df
+
+def write_ratings(df):
+    # Write the updated dataframe back to Dropbox as a CSV file
+
+    api_token = st.secrets["DROPBOX_API_TOKEN"]
+    dbx = dropbox.Dropbox(api_token)
+    csv_file_path = '/nba_elo/ratings.csv'
+
+    csv_bytes = df.to_csv(index=False).encode('utf-8')
+    dbx.files_upload(csv_bytes, csv_file_path, mode=dropbox.files.WriteMode('overwrite'), mute=True)
+
+    return
+
 
 nba_df = read_ratings()
 
@@ -74,7 +110,7 @@ st.write(nba_df)
 
 # Write the DataFrame to S3 using pd.to_csv() and s3fs.
 
-fs = s3fs.S3FileSystem(anon=False)
-s3_path = "darko-streamlit/ratings.csv"
-with fs.open(s3_path, "w") as f:
-    nba_df.to_csv(f, index=False)
+#fs = s3fs.S3FileSystem(anon=False)
+#s3_path = "darko-streamlit/ratings.csv"
+
+write_ratings(nba_df)
