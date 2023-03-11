@@ -36,9 +36,6 @@ def write_ratings(df):
 
     return
 
-
-nba_df = read_ratings()
-
 # Define the Elo rating system function
 def elo_rating(rating1, rating2, result, k=32):
     expected_score1 = 1 / (1 + 10**((rating2 - rating1) / 400))
@@ -54,6 +51,22 @@ def pick_random_players(nba_df):
     rating2 = nba_df.loc[nba_df["player_name"] == player2, "rating"].values[0]
     return player1, player2, rating1, rating2
 
+def run_comparison(player1, player2):
+    st.write(f"Who is better: {player1} or {player2}?")
+
+    if st.button(player1):
+        st.write(f"{player1} wins!")
+        result = 0
+
+    if st.button(player2):
+        st.write(f"{player2} wins!")
+        result = 1
+
+    return result
+
+# Read in the ratings
+nba_df = read_ratings()
+
 # Set up the Streamlit app
 st.title("NBA Player Ratings")
 
@@ -63,18 +76,7 @@ player_ratings = nba_df.set_index('player_name')['rating'].to_dict()
 # Set up the initial display
 player1, player2, rating1, rating2 = pick_random_players(nba_df)
 
-# Define the player comparison function
-st.write(f"Who is better: {player1} or {player2}?")
-st.button("Submit")
-selected_player = st.radio("Select a player", [player1, player2])
-if selected_player == player1:
-    result = 0
-    st.success(f"{player1} wins!")
-else:
-    result = 1
-    st.success(f"{player2} wins!")
-
-st.write(selected_player)      
+result = run_comparison(player1, player2)
 
 new_rating1, new_rating2 = elo_rating(rating1, rating2, result)
 player_ratings[player1] = new_rating1
