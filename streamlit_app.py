@@ -68,8 +68,8 @@ if st.button(player1):
 if st.button(player2):
     choice = player2
 else:
-    choice = None
-    print("no choice")
+    choice = player1
+    st.write(f"Failed")
 
 # Update the player ratings based on the user's choice
 if choice == player1:
