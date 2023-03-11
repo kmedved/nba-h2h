@@ -61,7 +61,8 @@ def read_ratings_test():
 
 
 # Read in the ratings
-nba_df = read_ratings_test()
+#nba_df = read_ratings_test()
+nba_df = read_ratings()
 
 # Set up the Streamlit app
 st.title("NBA Player Ratings")
@@ -97,4 +98,4 @@ if len(selection)>0:
     st.write(nba_df)
 
     # Write the updated ratings to Dropbox
-    #write_ratings(nba_df)
+    write_ratings(nba_df)
