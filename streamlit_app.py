@@ -12,12 +12,6 @@ import s3fs
 import dropbox
 import csv
 
-# Replace YOUR_API_TOKEN with your actual Dropbox API token
-
-api_token = secrets['DROPBOX_API_TOKEN']
-
-dbx = dropbox.Dropbox(api_token)
-
 def read_ratings_dep():
 
     fs = s3fs.S3FileSystem(anon=False)
