@@ -66,16 +66,20 @@ player1, player2, rating1, rating2 = pick_random_players(nba_df)
 st.write(f"Which player is better? {player1} or {player2}?")
 #choice = st.selectbox("", (player1, player2))
 
+# Set up the initial display
+player1, player2, rating1, rating2 = pick_random_players(nba_df)
+st.write(f"Which player is better? {player1} or {player2}?")
 if st.button(player1):
     choice = player1
-else:
+elif st.button(player2):
     choice = player2
 
 # Update the player ratings based on the user's choice
 if choice == player1:
     result = 1
-else:
+elif choice == player2:
     result = 0
+
 new_rating1, new_rating2 = elo_rating(rating1, rating2, result)
 player_ratings[player1] = new_rating1
 player_ratings[player2] = new_rating2
