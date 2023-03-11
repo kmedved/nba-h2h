@@ -64,23 +64,20 @@ player_ratings = nba_df.set_index('player_name')['rating'].to_dict()
 player1, player2, rating1, rating2 = pick_random_players(nba_df)
 
 # Define the player comparison function
-def compare_players(player1, player2, player_ratings):
-    st.write(f"Who is better: {player1} or {player2}?")
-    result = 1
-    if st.button(player1):
+st.write(f"Who is better: {player1} or {player2}?")
+result = None
+selected_player = st.selectbox("Select a player", [player1, player2])
+if st.button("Submit"):
+    if selected_player == player1:
         result = 0
         st.success(f"{player1} wins!")
-    elif st.button(player2):
+    else:
         result = 1
-        st.success(f"{player1} wins!")
+        st.success(f"{player2} wins!")
 
-    new_rating1, new_rating2 = elo_rating(rating1, rating2, result)
-    player_ratings[player1] = new_rating1
-    player_ratings[player2] = new_rating2
-
-    return player_ratings
-
-player_ratings = compare_players(player1, player2, player_ratings)
+new_rating1, new_rating2 = elo_rating(rating1, rating2, result)
+player_ratings[player1] = new_rating1
+player_ratings[player2] = new_rating2
 
 # Display the updated ratings
 st.write("Updated Ratings:")
