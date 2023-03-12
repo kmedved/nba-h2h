@@ -9,7 +9,7 @@ import pandas as pd
 # import os
 import dropbox
 
-@st.cache_data
+@st.cache_data(ttl=3600)
 def read_ratings():
     api_token = st.secrets["DROPBOX_API_TOKEN"]
     dbx = dropbox.Dropbox(api_token)
@@ -38,7 +38,6 @@ def write_ratings_local(df):
 
     return
 
-@st.cache_data
 def write_ratings(df):
     # Write the updated dataframe back to Dropbox as a CSV file
 
