@@ -9,23 +9,22 @@ import pandas as pd
 # import os
 import dropbox
 
-@st.cache(ttl=600)
+
 def read_ratings():
-    api_token = st.secrets["DROPBOX_API_TOKEN"]
-    dbx = dropbox.Dropbox(api_token)
+    # api_token = st.secrets["DROPBOX_API_TOKEN"]
+    # dbx = dropbox.Dropbox(api_token)
 
     # Define the path to the CSV file on Dropbox
-    csv_file_path = "/nba_elo/ratings.csv"
+    # csv_file_path = "/nba_elo/ratings.csv"
 
     # Read CSV file from Dropbox into a pandas dataframe
-    _, res = dbx.files_download(csv_file_path)
-    df = pd.read_csv(res.raw)
-    #df = pd.read_csv("local_file.csv")
+    # _, res = dbx.files_download(csv_file_path)
+    df = pd.read_csv("local_file.csv")
 
     return df
 
 
-def write_ratings_local(df):
+def write_ratings(df):
     # Write the updated dataframe back to Dropbox as a CSV file
 
     # api_token = st.secrets["DROPBOX_API_TOKEN"]
@@ -35,20 +34,6 @@ def write_ratings_local(df):
     # csv_bytes = df.to_csv(index=False).encode('utf-8')
     # dbx.files_upload(csv_bytes, csv_file_path, mode=dropbox.files.WriteMode('overwrite'), mute=True)
     df.to_csv("local_write_df.csv", index=False)
-
-    return
-
-def write_ratings(df):
-    # Write the updated dataframe back to Dropbox as a CSV file
-
-    api_token = st.secrets["DROPBOX_API_TOKEN"]
-    dbx = dropbox.Dropbox(api_token)
-    csv_file_path = "/nba_elo/ratings.csv"
-
-    csv_bytes = df.to_csv(index=False).encode("utf-8")
-    dbx.files_upload(
-        csv_bytes, csv_file_path, mode=dropbox.files.WriteMode("overwrite"), mute=True
-    )
 
     return
 
@@ -68,6 +53,16 @@ def pick_random_players(nba_df):
     rating1 = nba_df.loc[nba_df["player_name"] == player1, "rating"].values[0]
     rating2 = nba_df.loc[nba_df["player_name"] == player2, "rating"].values[0]
     return player1, player2, rating1, rating2
+
+
+def read_ratings_test():
+    df = pd.DataFrame(
+        {
+            "player_name": ["LeBron James", "Kevin Durant", "Stephen Curry"],
+            "rating": [1500, 1500, 1500],
+        }
+    )
+    return df
 
 
 def store_value(**kwargs):
@@ -95,8 +90,10 @@ def store_value(**kwargs):
     nba_df = nba_df.sort_values(by=["rating"], ascending=False)
     write_ratings(nba_df)
 
+
 if __name__ == "__main__":
     # Read in the ratings
+    # nba_df = read_ratings_test()
     nba_df = read_ratings()
 
     # Set up the Streamlit app
