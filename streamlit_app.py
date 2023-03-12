@@ -1,23 +1,25 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+from st_btn_select import st_btn_select
+
+import pandas as pd
+
 # import random
 # import os
 import dropbox
-import numpy as np
-import pandas as pd
-import streamlit as st
-from st_btn_select import st_btn_select
 
-@st.cache_data
+
 def read_ratings():
-
-    api_token = st.secrets["DROPBOX_API_TOKEN"]
-    dbx = dropbox.Dropbox(api_token)
+    # api_token = st.secrets["DROPBOX_API_TOKEN"]
+    # dbx = dropbox.Dropbox(api_token)
 
     # Define the path to the CSV file on Dropbox
-    csv_file_path = '/nba_elo/ratings.csv'
+    # csv_file_path = "/nba_elo/ratings.csv"
 
     # Read CSV file from Dropbox into a pandas dataframe
-    _, res = dbx.files_download(csv_file_path)
-    df = pd.read_csv(res.raw)
+    # _, res = dbx.files_download(csv_file_path)
+    df = pd.read_csv("local_file.csv")
 
     return df
 
@@ -25,16 +27,16 @@ def read_ratings():
 def write_ratings(df):
     # Write the updated dataframe back to Dropbox as a CSV file
 
-    api_token = st.secrets["DROPBOX_API_TOKEN"]
-    dbx = dropbox.Dropbox(api_token)
+    # api_token = st.secrets["DROPBOX_API_TOKEN"]
+    # dbx = dropbox.Dropbox(api_token)
     csv_file_path = "/nba_elo/ratings.csv"
 
-    csv_bytes = df.to_csv(index=False).encode("utf-8")
-    dbx.files_upload(
-        csv_bytes, csv_file_path, mode=dropbox.files.WriteMode("overwrite"), mute=True
-    )
+    # csv_bytes = df.to_csv(index=False).encode('utf-8')
+    # dbx.files_upload(csv_bytes, csv_file_path, mode=dropbox.files.WriteMode('overwrite'), mute=True)
+    df.to_csv("local_write_df.csv", index=False)
 
     return
+
 
 # Define the Elo rating system function
 def elo_rating(rating2, rating1, result, k=32):
@@ -42,11 +44,10 @@ def elo_rating(rating2, rating1, result, k=32):
     expected_score2 = 1 - expected_score1
     new_rating1 = rating1 + k * (result - expected_score1)
     new_rating2 = rating2 + k * ((1 - result) - expected_score2)
-    return new_rating1, new_rating2
+    return new_rating2, new_rating1
 
 
 # Define the function to pick two random players
-@st.cache_data
 def pick_random_players(nba_df):
     player1, player2 = np.random.choice(nba_df["player_name"], size=2, replace=False)
     rating1 = nba_df.loc[nba_df["player_name"] == player1, "rating"].values[0]
@@ -54,7 +55,6 @@ def pick_random_players(nba_df):
     return player1, player2, rating1, rating2
 
 
-@st.cache_data
 def read_ratings_test():
     df = pd.DataFrame(
         {
@@ -65,58 +65,74 @@ def read_ratings_test():
     return df
 
 
-# Read in the ratings
-
-#nba_df = read_ratings_test()
-nba_df = read_ratings()
-
-# Set up the Streamlit app
-st.title("NBA Player Ratings")
-
-# Initialize the player ratings dictionary
-player_ratings = nba_df.set_index("player_name")["rating"].to_dict()
-
-# # Set up the initial display
-player1, player2, rating1, rating2 = pick_random_players(nba_df)
-
-
-def select_player(left, right):
-
-    with st.form(key="player_form"):
-        selection = st_btn_select(
-            (left, right),
-            key="player_select",
-        )
-        submit_button = st.form_submit_button(label="Submit")
-    if not submit_button:
-        st.stop()
+def store_value(**kwargs):
+    st.session_state.selected_player = st.session_state.test
+    st.session_state.result = st.session_state.test
+    if st.session_state.selected_player == kwargs["player1"]:
+        st.session_state["result"] = f"{player1} wins!"
+        result = 0
     else:
-        st.write(f"***:blue[{selection}] wins!***")
-        return selection
+        st.session_state["result"] = f"{player2} wins!"
+        result = 1
+
+    rating1 = kwargs["rating1"]
+    rating2 = kwargs["rating2"]
+
+    new_rating1, new_rating2 = elo_rating(rating1, rating2, result)
+
+    player_ratings = kwargs["player_ratings"]
+    player_ratings[player1] = new_rating1
+    player_ratings[player2] = new_rating2
+
+    nba_df = kwargs["nba_df"]
+
+    nba_df["rating"] = nba_df["player_name"].apply(lambda x: player_ratings[x])
+    nba_df = nba_df.sort_values(by=["rating"], ascending=False)
+    write_ratings(nba_df)
 
 
-# add title:
-# add a "Start Over" button
-if st.button("Get new players"):
-    st.cache_data.clear()
-    st.experimental_rerun()
+if __name__ == "__main__":
+    # Read in the ratings
+    # nba_df = read_ratings_test()
+    nba_df = read_ratings()
 
+    # Set up the Streamlit app
+    st.title("NBA Player Ratings")
 
-player1, player2, rating1, rating2 = pick_random_players(nba_df)
-selected_player = select_player(player1, player2)
-result = 1 if selected_player == player1 else 0
-new_rating1, new_rating2 = elo_rating(rating1, rating2, result)
-player_ratings[player1] = new_rating1
-player_ratings[player2] = new_rating2
+    # Initialize the player ratings dictionary
+    player_ratings = nba_df.set_index("player_name")["rating"].to_dict()
 
-# Display the updated ratings
-st.write("Updated Ratings:")
-nba_df["rating"] = nba_df["player_name"].map(player_ratings)
-nba_df = nba_df.sort_values(by=["rating"], ascending=False)
-st.dataframe(nba_df)
+    # Set up the initial display
+    player1, player2, rating1, rating2 = pick_random_players(nba_df)
 
-# Write the updated ratings to Dropbox
-write_ratings(nba_df)
+    with st.form("player_form"):
+        result = st.session_state.get("result")
+        if result:
+            st.write(result)
+            # Display the updated ratings
 
-# whenever you write new data, make sure to clear your cache so you download new data on the next run:
-st.cache_data.clear()
+        player = st.radio(
+            "Select best player",
+            (player1, player2),
+            key="test",
+        )
+
+        submitted = st.form_submit_button(
+            "Submit",
+            on_click=store_value,
+            kwargs={
+                "player1": player1,
+                "player2": player2,
+                "rating1": rating1,
+                "rating2": rating2,
+                "player_ratings": player_ratings,
+                "nba_df": nba_df,
+            },
+        )
+
+        if submitted:
+            st.write("Updated Ratings:")
+            new_values = pd.read_csv("local_write_df.csv")
+            st.write(new_values)
+
+            # Write the updated ratings to Dropbox
