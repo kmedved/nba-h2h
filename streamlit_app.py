@@ -67,7 +67,8 @@ def read_ratings_test():
 
 # Read in the ratings
 
-nba_df = read_ratings_test()
+#nba_df = read_ratings_test()
+nba_df = read_ratings()
 
 # Set up the Streamlit app
 st.title("NBA Player Ratings")
@@ -115,7 +116,7 @@ nba_df = nba_df.sort_values(by=["rating"], ascending=False)
 st.dataframe(nba_df)
 
 # Write the updated ratings to Dropbox
-# write_ratings(nba_df)
+write_ratings(nba_df)
 
 # whenever you write new data, make sure to clear your cache so you download new data on the next run:
-# st.cache_data.clear()
+st.cache_data.clear()
