@@ -134,7 +134,7 @@ if __name__ == "__main__":
 
         if submitted:
             st.write("Updated Ratings:")
-            new_values = pd.read_csv("local_write_df.csv")
-            st.write(new_values)
+            #new_values = pd.read_csv("local_write_df.csv")
+            st.write(nba_df)
 
             # Write the updated ratings to Dropbox
