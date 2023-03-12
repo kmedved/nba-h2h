@@ -9,6 +9,7 @@ import pandas as pd
 # import os
 import dropbox
 
+@st.cache_data
 def read_ratings():
     api_token = st.secrets["DROPBOX_API_TOKEN"]
     dbx = dropbox.Dropbox(api_token)
