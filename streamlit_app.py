@@ -6,6 +6,7 @@ import pandas as pd
 import streamlit as st
 from st_btn_select import st_btn_select
 
+@st.cache_data
 def read_ratings():
 
     api_token = st.secrets["DROPBOX_API_TOKEN"]
