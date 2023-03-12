@@ -38,6 +38,7 @@ def write_ratings_local(df):
 
     return
 
+@st.cache_data
 def write_ratings(df):
     # Write the updated dataframe back to Dropbox as a CSV file
 
