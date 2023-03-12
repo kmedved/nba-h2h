@@ -67,7 +67,6 @@ def read_ratings_test():
 # Read in the ratings
 
 nba_df = read_ratings_test()
-#nba_df = _nba_df.copy(deep=True)
 
 # Set up the Streamlit app
 st.title("NBA Player Ratings")
@@ -88,9 +87,6 @@ def select_player(left, right):
         )
         submit_button = st.form_submit_button(label="Submit")
     if not submit_button:
-        selection = ""
-
-    if not submit_button:
         st.stop()
     else:
         st.write(f"***:blue[{selection}] wins!***")
@@ -103,8 +99,6 @@ if st.button("Get new players"):
     st.cache_data.clear()
     st.experimental_rerun()
 
-st.write("")
-st.write("")
 
 player1, player2, rating1, rating2 = pick_random_players(nba_df)
 selected_player = select_player(player1, player2)
